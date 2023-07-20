@@ -23,7 +23,8 @@ class SmallConstraint(Constraint):
         return eval(temp)
 
 if __name__ == "__main__":
-    statement = "SO+MANY+MORE+MEN+SEEM+TO+SAY+THAT+THEY+MAY+SOON+TRY+TO+STAY+AT+HOME+SO+AS+TO+SEE+OR+HEAR+THE+SAME+ONE+MAN+TRY+TO+MEET+THE+TEAM+ON+THE+MOON+AS+HE+HAS+AT+THE+OTHER+TEN=TESTS"
+    #statement = "SO+MANY+MORE+MEN+SEEM+TO+SAY+THAT+THEY+MAY+SOON+TRY+TO+STAY+AT+HOME+SO+AS+TO+SEE+OR+HEAR+THE+SAME+ONE+MAN+TRY+TO+MEET+THE+TEAM+ON+THE+MOON+AS+HE+HAS+AT+THE+OTHER+TEN=TESTS"
+    statement = "SEND+MORE=MONEY"
     # Sanitize the input to remove invalid characters and operators
     sanitized_statement = re.sub(r'[^A-Za-z0-9+\-*\/\(\)\=]', '', statement)
     sanitized_statement = re.sub(r'\=', '==', sanitized_statement)
@@ -42,10 +43,10 @@ if __name__ == "__main__":
     Cryptarithmetic = Constraint(variables, sanitized_statement)
     NoLeadingZero = [UnaryConstraint(['S'], 'S!=0')]
     NoLeadingZero.append(UnaryConstraint(['M'], 'M!=0'))
-    NoLeadingZero.append(UnaryConstraint(['T'], 'T!=0'))
-    NoLeadingZero.append(UnaryConstraint(['A'], 'A!=0'))
-    NoLeadingZero.append(UnaryConstraint(['O'], 'O!=0'))
-    NoLeadingZero.append(UnaryConstraint(['H'], 'H!=0'))
+    # NoLeadingZero.append(UnaryConstraint(['T'], 'T!=0'))
+    # NoLeadingZero.append(UnaryConstraint(['A'], 'A!=0'))
+    # NoLeadingZero.append(UnaryConstraint(['O'], 'O!=0'))
+    # NoLeadingZero.append(UnaryConstraint(['H'], 'H!=0'))
 
     for constraint in NoLeadingZero:
         csp.regis_constraint(constraint)     

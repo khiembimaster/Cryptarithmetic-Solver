@@ -33,10 +33,11 @@ class CSP():
                 self.constraints[variable].append(constraint)
     
     def consistent(self, variable, assignment):
+        count = 0
         for constraint in self.constraints[variable]:
             if not constraint.satisfied(assignment):
-                return False
-        return True
+                count+=1
+        return count
     
     def suppose(self, variable, value):
         if self.curr_domains is None:
@@ -50,34 +51,66 @@ class CSP():
         for B, b in removals:
             self.curr_domains[B].append(b)    
     
+    def prune(self, variable, value, removals):
+        "Rule out variable=value."
+        self.curr_domains[variable].remove(value)
+        if removals is not None:
+            removals.append((variable, value))
+
     def backtracking(self, assignment = {}):
         if len(assignment) == len(self.variables):
             return assignment
         
-        unassigned = [var for var in self.variables if var not in assignment]
 
-        front = unassigned[0]
-        
+        front = self.mrv(assignment)
+        # unassigned = [var for var in self.variables if var not in assignment]
+        # front = unassigned[0]
+
         for value in self.domains[front]:
             local_assignment = assignment.copy()
             local_assignment[front] = value
-            if self.consistent(front, local_assignment):
+            if self.consistent(front, local_assignment) == 0:
                 removals = self.suppose(front, value)
-                #if self.inference(front, local_assignment):
-                result = self.backtracking(local_assignment)
-                if result is not None:
-                    return result
+                if self.inference(front, value, local_assignment, removals):
+                    result = self.backtracking(local_assignment)
+                    if result is not None:
+                        return result
                 self.restore(removals)
-                
             
         return None
+    def choices(self, var):
+        "Return all values for var that aren't currently ruled out."
+        return (self.curr_domains or self.domains)[var]
     
-    # def inference(self, variable, value, assignment, removals):
-    #     for B in self.neighbors[variable]:
-    #     if B not in assignment:
-    #         for b in csp.curr_domains[B][:]:
-    #             if not csp.constraints(var, value, B, b):
-    #                 csp.prune(B, b, removals)
-    #         if not csp.curr_domains[B]:
-    #             return False
-    #     return True
+    def lcv(self, var, assignment):
+        "Least-constraining-values heuristic."
+        def plus_consistent(val):
+            local = assignment.copy()
+            local[var] = val
+            self.consistent(var, local)
+        return sorted(self.choices(var), key=plus_consistent)
+    
+    def mrv(self, assignment):
+        "Minimum-remaining-values heuristic."
+        return min([v for v in self.variables if v not in assignment], key=lambda var:self.num_legal_values(var, assignment))
+
+    def num_legal_values(self, variable, assignment):
+        sum = 0
+        for value in self.domains[variable]:
+            local_assignment = assignment.copy()
+            local_assignment[variable] = value 
+            sum += (self.consistent(variable, local_assignment) == 0 )
+        return sum
+    def inference(self, variable, value, assignment, removals):
+        for B in self.variables:
+            if B not in assignment:
+                local = assignment.copy() 
+                for b in self.curr_domains[B][:]:
+                    local[B] = b
+                    if self.consistent(variable, local) != 0:
+                        self.prune(B, b, removals)
+                if not self.curr_domains[B]:
+                    return False
+        return True
+    
+    
