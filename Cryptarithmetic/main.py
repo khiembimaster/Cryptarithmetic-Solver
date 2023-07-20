@@ -12,9 +12,12 @@ if __name__ == "__main__":
     print(variables)
     print(operands)
     assignment = {'S': 9, 'E': 5, 'N': 6, 'D': 7, 'M': 1, 'O': 0, 'R': 8, 'Y': 2}
+    
+    temp = sanitized_statement
     for letter, digit in assignment.items():
-        sanitized_statement = sanitized_statement.replace(letter, str(digit))
-    print(eval(sanitized_statement))
+        temp = temp.replace(letter, str(digit))
+    
+    print(eval(temp))
     
     constraints = [sanitized_statement]
 
