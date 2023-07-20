@@ -11,21 +11,22 @@ if __name__ == "__main__":
     print(sanitized_statement)
     print(variables)
     print(operands)
-    assignment = {'S': 9, 'E': 5, 'N': 6, 'D': 7, 'M': 1, 'O': 0, 'R': 8, 'Y': 2}
+    assignment = {'S': 9, 'E': 9, 'N': 6, 'D': 7, 'M': 1, 'O': 0, 'R': 8, 'Y': 2}
     
     temp = sanitized_statement
     for letter, digit in assignment.items():
         temp = temp.replace(letter, str(digit))
     
+    print(temp)
     print(eval(temp))
     
     constraints = [sanitized_statement]
 
     positions = [m.start() for m in re.finditer(r"[A-Z]", sanitized_statement)]
-    
-    
 
+    constraint = f'len(set({[value for value in assignment.values()]})) == len({[value for value in assignment.values()]})'
     # Print the constraint string
-    print(constraints)
+    constraints.append(constraint)
+    print(eval(constraint))
 
     

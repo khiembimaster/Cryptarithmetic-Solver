@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 
 
 class CSP():
-
     def __init__(self, variables, domains, neighbors, contraints) -> None:
         self.variables = variables
         self.domains = domains
