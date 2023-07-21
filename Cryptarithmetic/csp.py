@@ -3,19 +3,21 @@ class Constraint:
         self.variables = variables
         self.constraint = constraint
     def satisfied(self, assignment:dict = None):
-        if len(set(assignment.values())) < len(assignment):
-            return False
-         
-        if len(assignment) != len(self.variables):
+        if not (set(self.variables) <= set(assignment.keys())):
             return True
-
+        
         temp = self.constraint
         for letter, digit in assignment.items():
             temp = temp.replace(letter, str(digit))
-        return eval(temp)
+        
+        try:
+            result = eval(temp) 
+        except:
+            result = False
+        return result 
 
 class CSP():
-    def __init__(self, variables, domains:dict) -> None:
+    def __init__(self, variables:set, domains:dict) -> None:
         self.variables = variables
         self.domains = domains 
         self.curr_domains = {v: list(self.domains[v]) for v in self.variables}
@@ -58,6 +60,7 @@ class CSP():
             removals.append((variable, value))
 
     def backtracking(self, assignment = {}):
+        print(assignment)
         if len(assignment) == len(self.variables):
             return assignment
         
@@ -65,13 +68,13 @@ class CSP():
         front = self.mrv(assignment)
         # unassigned = [var for var in self.variables if var not in assignment]
         # front = unassigned[0]
-
-        for value in self.domains[front]:
+        
+        for value in self.lcv(front, assignment):
             local_assignment = assignment.copy()
             local_assignment[front] = value
             if self.consistent(front, local_assignment) == 0:
                 removals = self.suppose(front, value)
-                if self.inference(front, value, local_assignment, removals):
+                if self.inference(removals=removals, assignment=local_assignment):
                     result = self.backtracking(local_assignment)
                     if result is not None:
                         return result
@@ -87,7 +90,7 @@ class CSP():
         def plus_consistent(val):
             local = assignment.copy()
             local[var] = val
-            self.consistent(var, local)
+            return self.consistent(var, local)
         return sorted(self.choices(var), key=plus_consistent)
     
     def mrv(self, assignment):
@@ -101,16 +104,45 @@ class CSP():
             local_assignment[variable] = value 
             sum += (self.consistent(variable, local_assignment) == 0 )
         return sum
-    def inference(self, variable, value, assignment, removals):
-        for B in self.variables:
-            if B not in assignment:
-                local = assignment.copy() 
-                for b in self.curr_domains[B][:]:
-                    local[B] = b
-                    if self.consistent(variable, local) != 0:
-                        self.prune(B, b, removals)
-                if not self.curr_domains[B]:
+    
+    def get_neighbor(self, variable):
+        neighbors = set()
+        for contraint in self.constraints[variable]:
+            neighbors.update(contraint.variables)
+        neighbors.remove(variable)
+        return neighbors
+    
+    def inference(self, queue=None, removals=None, assignment = None):
+        if queue is None:
+            queue = [(Xi, Xk) for Xi in self.variables for Xk in self.get_neighbor(Xi)]
+        if self.curr_domains is None:
+            self.curr_domains = {v: list(self.domains[v]) for v in self.variables}
+        while queue:
+            (Xi, Xj) = queue.pop()
+            if self.revise(Xi, Xj, removals, assignment=assignment):
+                if not self.curr_domains[Xi]:
                     return False
+                for Xk in self.get_neighbor(Xi):
+                    if Xk != Xi:
+                        queue.append((Xk, Xi))
         return True
-    
-    
+
+    def revise(self, Xi, Xj, removals, assignment:dict):
+        revised = False
+        for x in self.curr_domains[Xi][:]:
+            conflict_list = []
+            for y in self.curr_domains[Xj]:
+                local = assignment.copy()
+                local[Xi] = x
+                local[Xj] = y
+                if self.consistent(Xi, local) > 0:
+                    conflict_list.append(True)
+                else:
+                    conflict_list.append(False)
+
+            if all(conflict_list):
+                self.prune(Xi, x, removals)
+                revised = True
+        
+        return revised
+        
