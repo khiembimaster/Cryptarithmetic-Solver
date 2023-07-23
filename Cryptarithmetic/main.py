@@ -1,4 +1,5 @@
 import re
+import time
 from csp import Constraint, CSP
 
 def checkIndexNotCorrect(indexOperand:list):
@@ -6,10 +7,7 @@ def checkIndexNotCorrect(indexOperand:list):
         if(indexOperand[i]!=-1):
             return False
     return True
-
-if __name__ == "__main__":
-    #statement = "SO+MANY+MORE+MEN+SEEM+TO+SAY+THAT+THEY+MAY+SOON+TRY+TO+STAY+AT+HOME+SO+AS+TO+SEE+OR+HEAR+THE+SAME+ONE+MAN+TRY+TO+MEET+THE+TEAM+ON+THE+MOON+AS+HE+HAS+AT+THE+OTHER+TEN=TESTS"
-    statement = "SEND+MORE=MONEY"
+def create_csp(statement):
     # Sanitize the input to remove invalid characters and operators
     sanitized_statement = re.sub(r'[^A-Za-z0-9+\-*\/\(\)\=]', '', statement)
     sanitized_statement = re.sub(r'\=', '==', sanitized_statement)
@@ -19,8 +17,6 @@ if __name__ == "__main__":
     print(sanitized_statement)
     print(variables)
     print(operands)
-
-
 
     Cryptarithmetic = Constraint(variables.copy(), sanitized_statement)
     non_zero_constraints = []
@@ -34,13 +30,26 @@ if __name__ == "__main__":
         constraints.append(Constraint(variable, constraint))
 
     #AllDiff
-    AllDiff = list(variables)
+    AllDiff = list(variables.copy())
     for i in range(len(AllDiff)-1):
         for j in range(i+1, len(AllDiff)):
             temp = ''
             temp += AllDiff[i] + "!=" + AllDiff[j]
             constraints.append(Constraint([AllDiff[i], AllDiff[j]], temp))
-            
+
+
+    # WordsDiff = list(set(operands.copy()))
+    # for i in range(len(WordsDiff)-1):
+    #     for j in range(i+1, len(WordsDiff)):
+    #         temp = ''
+    #         temp += WordsDiff[i] + "!=" + WordsDiff[j]
+    #         constraints.append(Constraint(set(WordsDiff[i][:] + WordsDiff[j][:]), temp))
+
+    # for i in range(len(operands)-1):
+    #     temp = ''
+    #     temp += operands[i] + "<" + operands[-1]
+    #     constraints.append(Constraint(set(operands[i][:] + operands[-1][:]), temp))
+
     # add constraints basic 
     numCarry= len(max(operands,key=len))
     carry=[]
@@ -81,9 +90,9 @@ if __name__ == "__main__":
             indexOperands[ii+1]-=1
         constraints.append(Constraint(used_variable, temp))
 
-
-
     variables.update(used_cary)
+
+
     possibe_digits = {}
     for letter in variables:
         possibe_digits[letter] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -92,9 +101,37 @@ if __name__ == "__main__":
     for constraint in constraints:
         csp.regis_constraint(constraint)     
     csp.regis_constraint(Cryptarithmetic)
-    # Run search
+    return csp
+
+
+if __name__ == "__main__":
+    challenges = [
+    
+    " ".join(["SEND+MORE=MONEY",
+    ]),
+    " ".join([
+        "TEN + HERONS + REST + NEAR + NORTH + SEA + SHORE + AS + TAN + TERNS + SOAR + TO + ENTER + THERE + AS + ",
+        "HERONS + NEST + ON + STONES + AT + SHORE + THREE + STARS + ARE + SEEN + TERN + SNORES + ARE + NEAR = SEVVOTH",        
+    ]),
+    " ".join([
+        "SO + MANY + MORE + MEN + SEEM + TO + SAY + THAT + THEY + MAY + SOON + TRY + TO + STAY + AT + HOME + ",
+        "SO + AS + TO + SEE + OR + HEAR + THE + SAME + ONE + MAN + TRY + TO + MEET + THE + TEAM + ON + THE + ",
+        "MOON + AS + HE + HAS + AT + THE + OTHER + TEN = TESTS",
+    ]),
+]
+    statement = "SO+MANY+MORE+MEN+SEEM+TO+SAY+THAT+THEY+MAY+SOON+TRY+TO+STAY+AT+HOME+SO+AS+TO+SEE+OR+HEAR+THE+SAME+ONE+MAN+TRY+TO+MEET+THE+TEAM+ON+THE+MOON+AS+HE+HAS+AT+THE+OTHER+TEN=TESTS"
+
+    csp = create_csp(challenges[0])
+
+    start = time.time()
+
+    # Code to be measured
     solution = csp.backtracking()
+    end = time.time()
+    elapsed_time = end - start
     if solution is None:
         print("No solution found!")
     else:
         print(solution)
+    print(f"Elapsed time: {elapsed_time} seconds")
+    

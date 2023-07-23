@@ -10,10 +10,8 @@ class Constraint:
         for letter, digit in assignment.items():
             temp = temp.replace(letter, str(digit))
         
-        try:
-            result = eval(temp) 
-        except:
-            result = False
+        result = eval(temp) 
+        
         return result 
 
 class CSP():
@@ -21,6 +19,7 @@ class CSP():
         self.variables = variables
         self.domains = domains 
         self.curr_domains = {v: list(self.domains[v]) for v in self.variables}
+        self.neighbors = None
         self.constraints = {}
         for variable in self.variables:
             self.constraints[variable] = []
@@ -64,34 +63,27 @@ class CSP():
         if len(assignment) == len(self.variables):
             return assignment
         
-
         front = self.mrv(assignment)
-        # unassigned = [var for var in self.variables if var not in assignment]
-        # front = unassigned[0]
-        
-        for value in self.lcv(front, assignment):
+        unassigned = self.lcv(front, assignment)
+        for value in unassigned:
             local_assignment = assignment.copy()
             local_assignment[front] = value
             if self.consistent(front, local_assignment) == 0:
                 removals = self.suppose(front, value)
-                if self.inference(removals=removals, assignment=local_assignment):
+                if self.inference([(front, X) for X in self.get_neighbor(front)], removals=removals):
                     result = self.backtracking(local_assignment)
                     if result is not None:
                         return result
                 self.restore(removals)
-            
         return None
-    def choices(self, var):
-        "Return all values for var that aren't currently ruled out."
-        return (self.curr_domains or self.domains)[var]
-    
+
     def lcv(self, var, assignment):
         "Least-constraining-values heuristic."
         def plus_consistent(val):
             local = assignment.copy()
             local[var] = val
             return self.consistent(var, local)
-        return sorted(self.choices(var), key=plus_consistent)
+        return sorted(self.curr_domains[var], key=plus_consistent)
     
     def mrv(self, assignment):
         "Minimum-remaining-values heuristic."
@@ -102,45 +94,59 @@ class CSP():
         for value in self.domains[variable]:
             local_assignment = assignment.copy()
             local_assignment[variable] = value 
-            sum += (self.consistent(variable, local_assignment) == 0 )
+            sum += bool(self.consistent(variable, local_assignment) == 0)
         return sum
     
     def get_neighbor(self, variable):
-        neighbors = set()
-        for contraint in self.constraints[variable]:
-            neighbors.update(contraint.variables)
-        neighbors.remove(variable)
-        return neighbors
+        if self.neighbors is None:
+            self.neighbors = {}
+        if variable not in self.neighbors:
+            self.neighbors[variable] = set()
+            for contraint in self.constraints[variable]:
+                self.neighbors[variable].update(contraint.variables)
+            self.neighbors[variable].remove(variable)
     
-    def inference(self, queue=None, removals=None, assignment = None):
-        if queue is None:
-            queue = [(Xi, Xk) for Xi in self.variables for Xk in self.get_neighbor(Xi)]
-        if self.curr_domains is None:
-            self.curr_domains = {v: list(self.domains[v]) for v in self.variables}
+        return self.neighbors[variable]
+        
+    def forward_checking(self, variable, assignment, removals):
+        neighbors = self.get_neighbor(variable)-(assignment.keys())
+        for B in neighbors:
+            if B not in assignment:
+                for b in self.curr_domains[B][:]:
+                    local_assignment = assignment.copy()
+                    local_assignment[B] = b
+                    if self.consistent(B, local_assignment) > 0:
+                        self.prune(B, b, removals)
+                    del local_assignment
+                if not self.curr_domains[B]:
+                    return False
+        return True
+    
+    def inference(self, queue = None, removals=None):
         while queue:
             (Xi, Xj) = queue.pop()
-            if self.revise(Xi, Xj, removals, assignment=assignment):
+            if self.revise(Xi, Xj, removals):
                 if not self.curr_domains[Xi]:
                     return False
-                for Xk in self.get_neighbor(Xi):
+                neighbors = self.get_neighbor(Xi)
+                for Xk in neighbors:
                     if Xk != Xi:
                         queue.append((Xk, Xi))
         return True
 
-    def revise(self, Xi, Xj, removals, assignment:dict):
+    def revise(self, Xi, Xj, removals):
         revised = False
         for x in self.curr_domains[Xi][:]:
-            conflict_list = []
-            for y in self.curr_domains[Xj]:
-                local = assignment.copy()
+            conflict_list = True
+            for y in self.curr_domains[Xj][:]:
+                local = {}
                 local[Xi] = x
                 local[Xj] = y
-                if self.consistent(Xi, local) > 0:
-                    conflict_list.append(True)
-                else:
-                    conflict_list.append(False)
+                if self.consistent(Xi, local) == 0:
+                    conflict_list = False
+                    break
 
-            if all(conflict_list):
+            if conflict_list:
                 self.prune(Xi, x, removals)
                 revised = True
         
