@@ -7,6 +7,8 @@ def checkIndexNotCorrect(indexOperand:list):
         if(indexOperand[i]!=-1):
             return False
     return True
+
+
 def create_csp(statement):
     # Sanitize the input to remove invalid characters and operators
     sanitized_statement = re.sub(r'[^A-Za-z0-9+\-*\/\(\)\=]', '', statement)
@@ -17,7 +19,9 @@ def create_csp(statement):
     print(sanitized_statement)
     print(variables)
     print(operands)
-
+    if len(variables) > 10:
+        return None
+    
     Cryptarithmetic = Constraint(variables.copy(), sanitized_statement)
     non_zero_constraints = []
     #rang buoc khac 0
@@ -36,19 +40,6 @@ def create_csp(statement):
             temp = ''
             temp += AllDiff[i] + "!=" + AllDiff[j]
             constraints.append(Constraint([AllDiff[i], AllDiff[j]], temp))
-
-
-    # WordsDiff = list(set(operands.copy()))
-    # for i in range(len(WordsDiff)-1):
-    #     for j in range(i+1, len(WordsDiff)):
-    #         temp = ''
-    #         temp += WordsDiff[i] + "!=" + WordsDiff[j]
-    #         constraints.append(Constraint(set(WordsDiff[i][:] + WordsDiff[j][:]), temp))
-
-    # for i in range(len(operands)-1):
-    #     temp = ''
-    #     temp += operands[i] + "<" + operands[-1]
-    #     constraints.append(Constraint(set(operands[i][:] + operands[-1][:]), temp))
 
     # add constraints basic 
     numCarry= len(max(operands,key=len))
@@ -109,6 +100,8 @@ if __name__ == "__main__":
     
     " ".join(["SEND+MORE=MONEY",
     ]),
+    " ".join(["SEND+(MORE+MONEY)-OR+DIE=NUOYI"
+    ]),
     " ".join([
         "TEN + HERONS + REST + NEAR + NORTH + SEA + SHORE + AS + TAN + TERNS + SOAR + TO + ENTER + THERE + AS + ",
         "HERONS + NEST + ON + STONES + AT + SHORE + THREE + STARS + ARE + SEEN + TERN + SNORES + ARE + NEAR = SEVVOTH",        
@@ -127,6 +120,7 @@ if __name__ == "__main__":
 
     # Code to be measured
     solution = csp.backtracking()
+    solution = dict(sorted(solution.items()))
     end = time.time()
     elapsed_time = end - start
     if solution is None:
