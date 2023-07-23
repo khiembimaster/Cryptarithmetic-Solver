@@ -8,6 +8,19 @@ def checkIndexNotCorrect(indexOperand:list):
             return False
     return True
 
+def word_to_expression(word):
+    # Define a dictionary that maps each letter to its corresponding power of 10
+    powers_of_10 = {letter: 10**i for i, letter in enumerate(word[::-1])}
+    
+    # Map each letter to its corresponding expression with powers of 10
+    expression_list = [f"{letter} * {powers_of_10[letter]}" for letter in word]
+    
+    # Join the expression list into a single string with "+" signs between each expression
+    expression_string = ' + '.join(expression_list)
+    
+    return '(' +expression_string+')'
+
+
 
 def create_csp(statement):
     # Sanitize the input to remove invalid characters and operators
@@ -21,7 +34,8 @@ def create_csp(statement):
     print(operands)
     if len(variables) > 10:
         return None
-    
+    for oper in operands:
+        sanitized_statement = sanitized_statement.replace(oper, word_to_expression(oper))
     Cryptarithmetic = Constraint(variables.copy(), sanitized_statement)
     non_zero_constraints = []
     #rang buoc khac 0

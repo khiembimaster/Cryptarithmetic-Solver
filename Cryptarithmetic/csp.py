@@ -6,11 +6,8 @@ class Constraint:
         if not (set(self.variables) <= set(assignment.keys())):
             return True
         
-        temp = self.constraint
-        for letter, digit in assignment.items():
-            temp = temp.replace(letter, str(digit))
-        
-        result = eval(temp) 
+        result = eval(self.constraint, {}, assignment) 
+
         
         return result 
 
