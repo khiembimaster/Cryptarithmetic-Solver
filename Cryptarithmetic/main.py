@@ -51,10 +51,7 @@ def remove_parentheses(s):
             if s[start-1] == '-':
                 s = s[:start-1] + s[start:]
                 replacement =  inside.replace('+', 'temp').replace('-', '+').replace('temp', '-')
-            # elif s[start-1] == '+':
-            #     replacement =  inside.replace('+', 'temp').replace('-', '+').replace('temp', '-')
             else:
-                s = s[:start-1] + s[start:]
                 replacement = inside
         else:
             replacement = inside
@@ -101,13 +98,11 @@ def create_csp(statement):
     Columns = []
     for letter in variables:
         possibe_digits[letter] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    expressions = []
     for i in range(numCarry):
         expr = carry
         for j in range(len(operands)-2):
             expr += operands[j][i] + operators[j]
         expr += operands[-2][i] + '==' + operands[-1][i] + '+' + f'c{i}*10'
-        expressions.append(expr)
         used_variables = (set(re.findall(r'[A-Z]', expr)))
         used_variables.update(set(re.findall(r'([c][\d])', expr)))
         # used_variables.add(f'c{i}')
@@ -135,7 +130,7 @@ def create_csp(statement):
         for j in range(len(Diffset)):
             if i != j:
                 csp.regis_constraint(Alldiff([Diffset[i], Diffset[j]]))
-    
+    csp.regis_constraint(Goal(Diffset, sanitized_statement))
     
 
     return csp    
@@ -159,16 +154,15 @@ if __name__ == "__main__":
         "MOON + AS + HE + HAS + AT + THE + OTHER + TEN = TESTS",
     ]),
 ]
-    statement = "SO+MANY+MORE+MEN+SEEM+TO+SAY+THAT+THEY+MAY+SOON+TRY+TO+STAY+AT+HOME+SO+AS+TO+SEE+OR+HEAR+THE+SAME+ONE+MAN+TRY+TO+MEET+THE+TEAM+ON+THE+MOON+AS+HE+HAS+AT+THE+OTHER+TEN=TESTS"
-
-    
     start = time.time()
     # Code to be measured
-    csp = create_csp(challenges[0]) 
+    csp = create_csp(challenges[1]) 
     solution = csp.backtracking()
+    print(evaluate("SEND+(MORE+MONEY)-OR+DIE==NUOYI", solution))
     # solution = dict(sorted(solution.items()))
     end = time.time()
     elapsed_time = end - start
+    
     if solution is None:
         print("No solution found!")
     else:
