@@ -65,13 +65,14 @@ class CSP():
         for value in unassigned:
             local_assignment = assignment.copy()
             local_assignment[front] = value
-            if self.consistent(front,local_assignment):
-                removals = self.suppose(front, value)
-                if self.inference([(front, X) for X in self.get_neighbor(front)], removals=removals):
-                    result = self.backtracking(local_assignment)
-                    if result is not None:
-                        return result
-                self.restore(removals)
+            # if self.consistent(front,local_assignment):
+            removals = self.suppose(front, value)
+            if self.forward_checking(front, local_assignment, removals):
+                # if self.inference([(front, X) for X in self.get_neighbor(front)], removals=removals):
+                result = self.backtracking(local_assignment)
+                if result is not None:
+                    return result
+            self.restore(removals)
         return None
 
     def lcv(self, var, assignment):

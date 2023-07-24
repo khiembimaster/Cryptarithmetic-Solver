@@ -36,16 +36,46 @@ class Goal(Constraint):
             return False
         return result
     
+def remove_parentheses(s):
+    # Find all pairs of parentheses that contain only addition or subtraction
+    pattern = r'\(([+\-\w\s]+)\)'
+    match = re.search(pattern, s)
+    while match:
+        # Distribute the terms inside the parentheses over the terms outside the parentheses
+        inside = match.group(1).strip()
+        start = match.start()
+        if start > 0:
+            if s[start-1] == '-':
+                s = s[:start-1] + s[start:]
+                replacement =  inside.replace('+', 'temp').replace('-', '+').replace('temp', '-')
+            # elif s[start-1] == '+':
+            #     replacement =  inside.replace('+', 'temp').replace('-', '+').replace('temp', '-')
+            else:
+                s = s[:start-1] + s[start:]
+                replacement = inside
+        else:
+            replacement = inside
+        # Replace the parentheses with the distributed terms
+        s = s.replace(match.group(0), replacement)
+        
+        # Find the next pair of parentheses
+        match = re.search(pattern, s)
+    
+    return s
+
 def create_csp(statement):
     # Sanitize the input to remove invalid characters and operators
     sanitized_statement = re.sub(r'[^A-Za-z0-9+\-*\/\(\)\=]', '', statement)
     sanitized_statement = re.sub(r'\=', '==', sanitized_statement)
+    sanitized_statement = remove_parentheses(sanitized_statement)
     # Use regular expressions to extract the variables and operands
-    variables = set(re.findall(r'[A-Z]', sanitized_statement))
+    variables = list(set(re.findall(r'[A-Z]', sanitized_statement)))
     operands = re.findall(r'[A-Z]+', sanitized_statement)
     print(sanitized_statement)
     print(variables)
     print(operands)
+
+
     if len(variables) > 10:
         return None
     
@@ -59,11 +89,18 @@ def create_csp(statement):
         constraints.append(NonZero(variable))
 
     #AllDiff
-    AllDiff = list(variables.copy())
-    for i in range(len(AllDiff)):
-        for j in range(len(AllDiff)):
-            if i != j:
-                constraints.append(Alldiff([AllDiff[i], AllDiff[j]]))
+    def oder(val):
+        result = 0
+        if val in operands[-1][0]:
+            result += 10
+        if val in non_zero_constraints:
+            result += 8
+        return result
+        
+    variables.sort(reverse=True, key = oder)
+    for i in range(len(variables)-1):
+        for j in range(i+1, len(variables)):
+                constraints.append(Alldiff([variables[i], variables[j]]))
 
     possibe_digits = {}
     for letter in variables:
@@ -89,6 +126,7 @@ if __name__ == "__main__":
         "HERONS + NEST + ON + STONES + AT + SHORE + THREE + STARS + ARE + SEEN + TERN + SNORES + ARE + NEAR = SEVVOTH",        
     ]),
     " ".join([
+    
         "SO + MANY + MORE + MEN + SEEM + TO + SAY + THAT + THEY + MAY + SOON + TRY + TO + STAY + AT + HOME + ",
         "SO + AS + TO + SEE + OR + HEAR + THE + SAME + ONE + MAN + TRY + TO + MEET + THE + TEAM + ON + THE + ",
         "MOON + AS + HE + HAS + AT + THE + OTHER + TEN = TESTS",
@@ -96,13 +134,13 @@ if __name__ == "__main__":
 ]
     statement = "SO+MANY+MORE+MEN+SEEM+TO+SAY+THAT+THEY+MAY+SOON+TRY+TO+STAY+AT+HOME+SO+AS+TO+SEE+OR+HEAR+THE+SAME+ONE+MAN+TRY+TO+MEET+THE+TEAM+ON+THE+MOON+AS+HE+HAS+AT+THE+OTHER+TEN=TESTS"
 
-    csp = create_csp(challenges[3])
+    csp = create_csp(challenges[1])
 
     start = time.time()
 
     # Code to be measured
     solution = csp.backtracking()
-    solution = dict(sorted(solution.items()))
+    # solution = dict(sorted(solution.items()))
     end = time.time()
     elapsed_time = end - start
     if solution is None:
