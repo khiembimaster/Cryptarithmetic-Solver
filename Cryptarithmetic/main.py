@@ -131,9 +131,10 @@ def create_csp(statement):
         csp.regis_constraint(NonZero(constraint))
 
     
-    for i in range(len(Diffset)-1):
-        for j in range(i+1, len(Diffset)):
-            csp.regis_constraint(Alldiff([Diffset[i], Diffset[j]]))
+    for i in range(len(Diffset)):
+        for j in range(len(Diffset)):
+            if i != j:
+                csp.regis_constraint(Alldiff([Diffset[i], Diffset[j]]))
     
     
 

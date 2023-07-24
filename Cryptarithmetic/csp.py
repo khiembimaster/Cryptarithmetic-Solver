@@ -67,7 +67,8 @@ class CSP():
             local_assignment[front] = value
             if self.consistent(front,local_assignment):
                 removals = self.suppose(front, value)
-                if self.inference([(front, X) for X in self.get_neighbor(front)], removals=removals):
+                if self.forward_checking(front, local_assignment, removals):
+                # if self.inference([(front, X) for X in self.get_neighbor(front)], removals=removals):
                     result = self.backtracking(local_assignment)
                     if result is not None:
                         return result
@@ -106,7 +107,7 @@ class CSP():
         return self.neighbors[variable]
         
     def forward_checking(self, variable, assignment, removals):
-        neighbors = self.get_neighbor(variable)-(assignment.keys())
+        neighbors = self.get_neighbor(variable)
         for B in neighbors:
             if B not in assignment:
                 for b in self.curr_domains[B][:]:
