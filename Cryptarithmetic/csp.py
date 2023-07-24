@@ -1,16 +1,11 @@
-class Constraint:
-    def __init__(self, variables, constraint):
+from abc import ABC, abstractmethod
+class Constraint(ABC):
+    def __init__(self, variables):
         self.variables = variables
-        self.constraint = constraint
+    @abstractmethod
     def satisfied(self, assignment:dict = None):
-        if not (set(self.variables) <= set(assignment.keys())):
-            return True
+        ...
         
-        result = eval(self.constraint, {}, assignment) 
-
-        
-        return result 
-
 class CSP():
     def __init__(self, variables:set, domains:dict) -> None:
         self.variables = variables
@@ -31,6 +26,11 @@ class CSP():
                 self.constraints[variable].append(constraint)
     
     def consistent(self, variable, assignment):
+        for constraint in self.constraints[variable]:
+            if not constraint.satisfied(assignment):
+                return False
+        return True
+    def conflicts(self, variable, assignment):
         count = 0
         for constraint in self.constraints[variable]:
             if not constraint.satisfied(assignment):
@@ -65,7 +65,7 @@ class CSP():
         for value in unassigned:
             local_assignment = assignment.copy()
             local_assignment[front] = value
-            if self.consistent(front, local_assignment) == 0:
+            if self.consistent(front,local_assignment):
                 removals = self.suppose(front, value)
                 if self.inference([(front, X) for X in self.get_neighbor(front)], removals=removals):
                     result = self.backtracking(local_assignment)
@@ -79,7 +79,7 @@ class CSP():
         def plus_consistent(val):
             local = assignment.copy()
             local[var] = val
-            return self.consistent(var, local)
+            return self.conflicts(var, local)
         return sorted(self.curr_domains[var], key=plus_consistent)
     
     def mrv(self, assignment):
@@ -91,7 +91,7 @@ class CSP():
         for value in self.domains[variable]:
             local_assignment = assignment.copy()
             local_assignment[variable] = value 
-            sum += bool(self.consistent(variable, local_assignment) == 0)
+            sum += self.consistent(variable, local_assignment)
         return sum
     
     def get_neighbor(self, variable):
@@ -112,7 +112,7 @@ class CSP():
                 for b in self.curr_domains[B][:]:
                     local_assignment = assignment.copy()
                     local_assignment[B] = b
-                    if self.consistent(B, local_assignment) > 0:
+                    if not self.consistent(B, local_assignment):
                         self.prune(B, b, removals)
                     del local_assignment
                 if not self.curr_domains[B]:
@@ -139,7 +139,7 @@ class CSP():
                 local = {}
                 local[Xi] = x
                 local[Xj] = y
-                if self.consistent(Xi, local) == 0:
+                if self.consistent(Xi, local):
                     conflict_list = False
                     break
 
