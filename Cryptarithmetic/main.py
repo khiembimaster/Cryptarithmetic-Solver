@@ -22,10 +22,8 @@ def evaluate(statement, assignment):
     temp = statement
     for letter, digit in assignment.items():
         temp = temp.replace(letter, str(digit))
-    try: 
-        result = eval(temp) 
-    except:
-        return False
+    
+    result = eval(temp) 
     return result
 
 class Goal(Constraint):
@@ -69,12 +67,8 @@ def create_csp(statement):
     sanitized_statement = re.sub(r'\=', '==', sanitized_statement)
     sanitized_statement = remove_parentheses(sanitized_statement)
     # Use regular expressions to extract the variables and operands
-
-    variables = list(set(re.findall(r'[A-Z]', sanitized_statement)))
-
     variables = set(re.findall(r'[A-Z]', sanitized_statement))
     Diffset = list(variables.copy())
-
     operands = re.findall(r'[A-Z]+', sanitized_statement)
     operators = re.findall(r'[\-\+]', sanitized_statement)
     print(sanitized_statement)
@@ -89,17 +83,6 @@ def create_csp(statement):
     for i in range(len(operands)):
         non_zero_constraints.append((operands[i][0]))
 
-    constraints = []
-    for variable in set(non_zero_constraints):
-        constraints.append(NonZero(variable))
-
-    #AllDiff
-    for i in range(len(variables)):
-        for j in range(len(variables)):
-            if i != j:
-                constraints.append(Alldiff([variables[i], variables[j]]))
-
-
     # add constraints basic 
     numCarry= len(max(operands,key=len))
     
@@ -107,39 +90,35 @@ def create_csp(statement):
         operands[i] = "{:0>{}}".format(operands[i], numCarry)
         operands[i] = operands[i][::-1]
     
-    carry = ''
+    c = ''
+    d = ''
     solution = None
     possibe_digits = {}
     Columns = []
+    constraints = []
+    sp_variables = set()
+    d_array = ['0'for i in range(numCarry+1)] 
     for letter in variables:
         possibe_digits[letter] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    for i in range(numCarry):
-        expr = carry
-        for j in range(len(operands)-2):
-            expr += operands[j][i] + operators[j]
-        expr += operands[-2][i] + '==' + operands[-1][i] + '+' + f'c{i}*10'
-        used_variables = (set(re.findall(r'[A-Z]', expr)))
-        used_variables.update(set(re.findall(r'([c][\d])', expr)))
-        # used_variables.add(f'c{i}')
-        variables.add(f'c{i}')
-        possibe_digits[f'c{i}'] = [0,1,2,3,4,5,6,7,8,9]
-        # Register the constraints
-        if solution is not None:
-            for letter, value in solution.items():
-                possibe_digits[letter] = [value]
-        
-        carry = f'c{i}+'
-        Columns.append(Goal(used_variables, expr))
-        possibe_digits[f'c{numCarry-1}'] = [0]
-
-    csp = CSP(variables, possibe_digits)
-        
-    for constraint in Columns:
-        csp.regis_constraint(constraint)
     
+    operators.insert(0,'+')
+    for i in range(numCarry):
+        # possibe_digits[f'd{i}{0}'] = [0,1,2,3,4,5,6,7,8,9]
+        for j in range(len(operands)-1):
+            d_array[i] += f'{operators[j]} {operands[j][i]}'
+            
+        temp = f'({d_array[i]})%10 == {operands[-1][i]}'
+        used_variables = set(re.findall(r'[A-Z]', temp))
+        constraints.append(Goal(used_variables, temp))
+        d_array[i+1]=f'({d_array[i]})//10'
+        
+    csp = CSP(variables, possibe_digits)
+
     for constraint in non_zero_constraints:
         csp.regis_constraint(NonZero(constraint))
 
+    for constraint in constraints:
+        csp.regis_constraint(constraint)
     
     for i in range(len(Diffset)):
         for j in range(len(Diffset)):
@@ -154,7 +133,7 @@ def create_csp(statement):
 if __name__ == "__main__":
     challenges = [
     
-    " ".join(["SEND+MORE=MONEY",
+    " ".join(["TWO-ONE=ONE",
     ]),
     " ".join(["SEND+(MORE+MONEY)-OR+DIE=NUOYI"
     ]),
@@ -173,7 +152,7 @@ if __name__ == "__main__":
     # Code to be measured
     csp = create_csp(challenges[1]) 
     solution = csp.backtracking()
-    print(evaluate("SEND+(MORE+MONEY)-OR+DIE==NUOYI", solution))
+    # print(evaluate("SEND+(MORE+MONEY)-OR+DIE==NUOYI", solution))
     # solution = dict(sorted(solution.items()))
     end = time.time()
     elapsed_time = end - start
