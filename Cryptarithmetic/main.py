@@ -41,7 +41,7 @@ def create_csp(statement):
     sanitized_statement = re.sub(r'[^A-Za-z0-9+\-*\/\(\)\=]', '', statement)
     sanitized_statement = re.sub(r'\=', '==', sanitized_statement)
     # Use regular expressions to extract the variables and operands
-    variables = set(re.findall(r'[A-Z]', sanitized_statement))
+    variables = list(set(re.findall(r'[A-Z]', sanitized_statement)))
     operands = re.findall(r'[A-Z]+', sanitized_statement)
     print(sanitized_statement)
     print(variables)
@@ -59,11 +59,10 @@ def create_csp(statement):
         constraints.append(NonZero(variable))
 
     #AllDiff
-    AllDiff = list(variables.copy())
-    for i in range(len(AllDiff)):
-        for j in range(len(AllDiff)):
+    for i in range(len(variables)):
+        for j in range(len(variables)):
             if i != j:
-                constraints.append(Alldiff([AllDiff[i], AllDiff[j]]))
+                constraints.append(Alldiff([variables[i], variables[j]]))
 
     possibe_digits = {}
     for letter in variables:
