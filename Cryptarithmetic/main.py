@@ -69,12 +69,12 @@ def create_csp(statement):
     sanitized_statement = re.sub(r'\=', '==', sanitized_statement)
     sanitized_statement = remove_parentheses(sanitized_statement)
     # Use regular expressions to extract the variables and operands
-<<<<<<< HEAD
+
     variables = list(set(re.findall(r'[A-Z]', sanitized_statement)))
-=======
+
     variables = set(re.findall(r'[A-Z]', sanitized_statement))
     Diffset = list(variables.copy())
->>>>>>> 6c4e7498c62de3545bfb21fc5d0176870248d618
+
     operands = re.findall(r'[A-Z]+', sanitized_statement)
     operators = re.findall(r'[\-\+]', sanitized_statement)
     print(sanitized_statement)
@@ -88,7 +88,7 @@ def create_csp(statement):
     #rang buoc khac 0
     for i in range(len(operands)):
         non_zero_constraints.append((operands[i][0]))
-<<<<<<< HEAD
+
     constraints = []
     for variable in set(non_zero_constraints):
         constraints.append(NonZero(variable))
@@ -98,8 +98,7 @@ def create_csp(statement):
         for j in range(len(variables)):
             if i != j:
                 constraints.append(Alldiff([variables[i], variables[j]]))
-=======
->>>>>>> 6c4e7498c62de3545bfb21fc5d0176870248d618
+
 
     # add constraints basic 
     numCarry= len(max(operands,key=len))
