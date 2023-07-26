@@ -133,7 +133,7 @@ def create_csp(statement):
 if __name__ == "__main__":
     challenges = [
     
-    " ".join(["TWO-ONE=ONE",
+    " ".join(["SEND+MORE=MONEY",
     ]),
     " ".join(["SEND+(MORE+MONEY)-OR+DIE=NUOYI"
     ]),
@@ -150,7 +150,7 @@ if __name__ == "__main__":
 ]
     start = time.time()
     # Code to be measured
-    csp = create_csp(challenges[1]) 
+    csp = create_csp(challenges[2]) 
     solution = csp.backtracking()
     # print(evaluate("SEND+(MORE+MONEY)-OR+DIE==NUOYI", solution))
     # solution = dict(sorted(solution.items()))

@@ -61,8 +61,9 @@ class CSP():
             return assignment
         
         front = self.mrv(assignment)
-        unassigned = self.lcv(front, assignment)
-        for value in unassigned:
+        # unassigned = self.lcv(front, assignment)
+        # for value in unassigned:
+        for value in self.curr_domains[front]:
             local_assignment = assignment.copy()
             local_assignment[front] = value
             if self.consistent(front,local_assignment):
