@@ -138,16 +138,6 @@ def sort_solution_alphabetically(solution):
     sorted_solution = sorted(solution.items(), key=lambda x: x[0])
     return sorted_solution
 
-# def write_solution_to_file(solution, output_file):
-#     if solution is None:
-#         with open(output_file, 'w') as output_file:
-#             print("No solution found!")
-#     else:
-#         sorted_solution = sort_solution_alphabetically(solution)
-#         with open(output_file, 'w') as output_file:
-#             for variable, value in sorted_solution:
-#                 output_file.append(f"{value}")
-
 def read_input_from_file(input_file_path):
     with open(input_file_path, 'r') as input_file:
         input_data = input_file.readlines()
@@ -155,9 +145,8 @@ def read_input_from_file(input_file_path):
 
 def read_input_from_folder(main_folder_path):
     input_data_list = []
-    #i = input("Choose your level: ")  # Prompt for the level
-    i=1
-    input_folder = os.path.join(main_folder_path, f'input_{i}')  # Use f-string to format the level
+    i = input("Choose your level: ")  # Prompt for the level
+    input_folder = os.path.join(main_folder_path, f'level_{i}')  
     for file_name in os.listdir(input_folder):
         if file_name.endswith('.txt'):
             file_path = os.path.join(input_folder, file_name)
@@ -172,7 +161,7 @@ def write_output_to_folder(input_file_path, output_data):
 
     output_file_path = os.path.join(output_subfolder, f"output_{os.path.basename(input_file_path)}")
     with open(output_file_path, 'w') as output_file:
-        for _, value in output_data:  # Extract only the values from the solutions
+        for _, value in output_data:  
             output_file.write(f"{value}")
 
 def solve_cryptarithmetic_puzzles(main_folder):
@@ -191,54 +180,11 @@ def solve_cryptarithmetic_puzzles(main_folder):
         write_output_to_folder(input_file_path, sorted_solution)
         elapsed_time = end - start
         print(f"Elapsed time: {elapsed_time} seconds")
-        # output_data_list.append((input_file_path, sorted_solution))
+        
 
-    # Write the output to txt files inside the input folder
-    # for input_file_path, output_data in output_data_list:
-    #     write_output_to_folder(input_file_path, output_data)
+
 
 if __name__ == "__main__":
-    # challenges = [
-    
-    # " ".join(["TEN + HERONS + REST + NEAR + NORTH + SEA + SHORE=ROARTS",
-    # ]),
-    # " ".join(["SEND+(MORE+MONEY)-(+OR+DIE)=NUOYI"
-    # ]),
-    # " ".join([
-    #     "TEN + HERONS + REST + NEAR + NORTH + SEA + SHORE + AS + TAN + TERNS + SOAR + TO + ENTER + THERE + AS + ",
-    #     "HERONS + NEST + ON + STONES + AT + SHORE + THREE + STARS + ARE + SEEN + TERN + SNORES + ARE + NEAR = SEVVOTH",        
-    # ]),
-    # " ".join([
-    
-    #     "SO + MANY + MORE + MEN + SEEM + TO + SAY + THAT + THEY + MAY + SOON + TRY + TO + STAY + AT + HOME + ",
-    #     "SO + AS + TO + SEE + OR + HEAR + THE + SAME + ONE + MAN + TRY + TO + MEET + THE + TEAM + ON + THE + ",
-    #     "MOON + AS + HE + HAS + AT + THE + OTHER + TEN = TESTS",
-    # ]),
-# ]   
-    # num_args=len(sys.argv)
-    # if num_args >1:
-    #     name=sys.argv[1]
-    # with open(name,'r') as file:
-    #     statement= file.read()
-    # print(statement)
-
-
-    start = time.time()
-    input_folder = 'input_folder'  # Replace with the path to the input folder
-    output_folder = 'output_folder'  # Replace with the path to the output folder
     main_folder = 'main_folder'
     solve_cryptarithmetic_puzzles(main_folder)
-    # Code to be measured
-    # csp = create_csp(statement) 
-    # solution = csp.backtracking()
-    # print(evaluate("SEND+(MORE+MONEY)-OR+DIE==NUOYI", solution))
-    # solution = dict(sorted(solution.items()))
-    end = time.time()
-    elapsed_time = end - start
-    # write_solution_to_file(solution,"output.txt")
-    # if solution is None:
-    #     print("No solution found!")
-    # else:
-    #     print(solution)
-    print(f"Elapsed time: {elapsed_time} seconds")
     
