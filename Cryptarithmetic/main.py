@@ -133,10 +133,24 @@ def create_csp(statement):
     return csp    
 
 
+def sort_solution_alphabetically(solution):
+    sorted_solution = sorted(solution.items(), key=lambda x: x[0])
+    return sorted_solution
+
+def write_solution_to_file(solution, output_file):
+    if solution is None:
+        with open(output_file, 'w') as output_file:
+            print("No solution found!")
+    else:
+        sorted_solution = sort_solution_alphabetically(solution)
+        with open(output_file, 'w') as output_file:
+            for variable, value in sorted_solution:
+                output_file.write(f"{value}")
+
 if __name__ == "__main__":
     challenges = [
     
-    " ".join(["SEND+MORE=MONEY",
+    " ".join(["TEN + HERONS + REST + NEAR + NORTH + SEA + SHORE=ROARTS",
     ]),
     " ".join(["SEND+(MORE+MONEY)-(+OR+DIE)=NUOYI"
     ]),
@@ -153,13 +167,13 @@ if __name__ == "__main__":
 ]
     start = time.time()
     # Code to be measured
-    csp = create_csp(challenges[1]) 
+    csp = create_csp(challenges[0]) 
     solution = csp.backtracking()
     # print(evaluate("SEND+(MORE+MONEY)-OR+DIE==NUOYI", solution))
     # solution = dict(sorted(solution.items()))
     end = time.time()
     elapsed_time = end - start
-    
+    write_solution_to_file(solution,"output.txt")
     if solution is None:
         print("No solution found!")
     else:
