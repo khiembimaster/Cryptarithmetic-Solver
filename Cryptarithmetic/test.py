@@ -1,4 +1,4 @@
-solution = {'N': 7, 'S': 1, 'H': 3, 'R': 6, 'T': 9, 'A': 2, 'O': 4, 'E': 5, 'V': 8}
+solution = {'A': 7, 'H': 5, 'T': 9, 'S': 3, 'M': 2, 'O': 1, 'E': 0, 'R': 8, 'N': 6, 'Y': 4}
 def evaluate(statement, assignment):
     temp = statement
     for letter, digit in assignment.items():
@@ -8,7 +8,8 @@ def evaluate(statement, assignment):
     return result
 
 test = " ".join([
-        "TEN + HERONS + REST + NEAR + NORTH + SEA + SHORE + AS + TAN + TERNS + SOAR + TO + ENTER + THERE + AS + ",
-        "HERONS + NEST + ON + STONES + AT + SHORE + THREE + STARS + ARE + SEEN + TERN + SNORES + ARE + NEAR == SEVVOTH",        
+        "SO + MANY + MORE + MEN + SEEM + TO + SAY + THAT + THEY + MAY + SOON + TRY + TO + STAY + AT + HOME + ",
+        "SO + AS + TO + SEE + OR + HEAR + THE + SAME + ONE + MAN + TRY + TO + MEET + THE + TEAM + ON + THE + ",
+        "MOON + AS + HE + HAS + AT + THE + OTHER + TEN == TESTS"        
     ])
 print(evaluate(test, solution))

@@ -37,7 +37,7 @@ class Goal(Constraint):
 
         return evaluate(self.statement, assignment)
     
-def remove_parentheses(s):
+def remove_parentheses(s:str):
     # Find all pairs of parentheses that contain only addition or subtraction
     pattern = r'\(([+\-\w\s]+)\)'
     match = re.search(pattern, s)
@@ -47,7 +47,10 @@ def remove_parentheses(s):
         start = match.start()
         if start > 0:
             if s[start-1] == '-':
+                if str(s[start+1]).isalpha():
+                    inside = '+' + inside[:]    
                 s = s[:start-1] + s[start:]
+                
                 replacement =  inside.replace('+', 'temp').replace('-', '+').replace('temp', '-')
             else:
                 replacement = inside
@@ -135,7 +138,7 @@ if __name__ == "__main__":
     
     " ".join(["SEND+MORE=MONEY",
     ]),
-    " ".join(["SEND+(MORE+MONEY)-OR+DIE=NUOYI"
+    " ".join(["SEND+(MORE+MONEY)-(+OR+DIE)=NUOYI"
     ]),
     " ".join([
         "TEN + HERONS + REST + NEAR + NORTH + SEA + SHORE + AS + TAN + TERNS + SOAR + TO + ENTER + THERE + AS + ",
@@ -150,7 +153,7 @@ if __name__ == "__main__":
 ]
     start = time.time()
     # Code to be measured
-    csp = create_csp(challenges[2]) 
+    csp = create_csp(challenges[1]) 
     solution = csp.backtracking()
     # print(evaluate("SEND+(MORE+MONEY)-OR+DIE==NUOYI", solution))
     # solution = dict(sorted(solution.items()))
