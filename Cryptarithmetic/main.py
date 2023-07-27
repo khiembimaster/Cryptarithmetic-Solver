@@ -1,5 +1,6 @@
 import re
 import time
+import os
 from csp import Constraint, CSP
 
 class Alldiff(Constraint):
@@ -137,15 +138,64 @@ def sort_solution_alphabetically(solution):
     sorted_solution = sorted(solution.items(), key=lambda x: x[0])
     return sorted_solution
 
-def write_solution_to_file(solution, output_file):
-    if solution is None:
-        with open(output_file, 'w') as output_file:
-            print("No solution found!")
-    else:
+# def write_solution_to_file(solution, output_file):
+#     if solution is None:
+#         with open(output_file, 'w') as output_file:
+#             print("No solution found!")
+#     else:
+#         sorted_solution = sort_solution_alphabetically(solution)
+#         with open(output_file, 'w') as output_file:
+#             for variable, value in sorted_solution:
+#                 output_file.append(f"{value}")
+
+def read_input_from_file(input_file_path):
+    with open(input_file_path, 'r') as input_file:
+        input_data = input_file.readlines()
+    return input_data
+
+def read_input_from_folder(main_folder_path):
+    input_data_list = []
+    #i = input("Choose your level: ")  # Prompt for the level
+    i=1
+    input_folder = os.path.join(main_folder_path, f'input_{i}')  # Use f-string to format the level
+    for file_name in os.listdir(input_folder):
+        if file_name.endswith('.txt'):
+            file_path = os.path.join(input_folder, file_name)
+            input_data = read_input_from_file(file_path)
+            input_data_list.append((file_path, input_data))
+    return input_data_list
+
+
+def write_output_to_folder(input_file_path, output_data):
+    output_subfolder = os.path.join(os.path.dirname(input_file_path), 'output')
+    os.makedirs(output_subfolder, exist_ok=True)
+
+    output_file_path = os.path.join(output_subfolder, f"output_{os.path.basename(input_file_path)}")
+    with open(output_file_path, 'w') as output_file:
+        for _, value in output_data:  # Extract only the values from the solutions
+            output_file.write(f"{value}")
+
+def solve_cryptarithmetic_puzzles(main_folder):
+    # Read input from the input folder inside the main folder
+    input_data_list = read_input_from_folder(main_folder)
+
+    # Solve each Cryptarithmetic puzzle and store the solutions
+    output_data_list = []
+    for input_file_path, input_data in input_data_list:
+        start = time.time()
+        puzzle = ''.join(input_data).strip()
+        csp = create_csp(puzzle)
+        solution = csp.backtracking()
         sorted_solution = sort_solution_alphabetically(solution)
-        with open(output_file, 'w') as output_file:
-            for variable, value in sorted_solution:
-                output_file.write(f"{value}")
+        end = time.time()
+        write_output_to_folder(input_file_path, sorted_solution)
+        elapsed_time = end - start
+        print(f"Elapsed time: {elapsed_time} seconds")
+        # output_data_list.append((input_file_path, sorted_solution))
+
+    # Write the output to txt files inside the input folder
+    # for input_file_path, output_data in output_data_list:
+    #     write_output_to_folder(input_file_path, output_data)
 
 if __name__ == "__main__":
     # challenges = [
@@ -165,26 +215,30 @@ if __name__ == "__main__":
     #     "MOON + AS + HE + HAS + AT + THE + OTHER + TEN = TESTS",
     # ]),
 # ]   
-    num_args=len(sys.argv)
-    if num_args >1:
-        name=sys.argv[1]
-    with open(name,'r') as file:
-        statement= file.read()
-    print(statement)
+    # num_args=len(sys.argv)
+    # if num_args >1:
+    #     name=sys.argv[1]
+    # with open(name,'r') as file:
+    #     statement= file.read()
+    # print(statement)
 
 
     start = time.time()
+    input_folder = 'input_folder'  # Replace with the path to the input folder
+    output_folder = 'output_folder'  # Replace with the path to the output folder
+    main_folder = 'main_folder'
+    solve_cryptarithmetic_puzzles(main_folder)
     # Code to be measured
-    csp = create_csp(statement) 
-    solution = csp.backtracking()
+    # csp = create_csp(statement) 
+    # solution = csp.backtracking()
     # print(evaluate("SEND+(MORE+MONEY)-OR+DIE==NUOYI", solution))
     # solution = dict(sorted(solution.items()))
     end = time.time()
     elapsed_time = end - start
-    write_solution_to_file(solution,"output.txt")
-    if solution is None:
-        print("No solution found!")
-    else:
-        print(solution)
+    # write_solution_to_file(solution,"output.txt")
+    # if solution is None:
+    #     print("No solution found!")
+    # else:
+    #     print(solution)
     print(f"Elapsed time: {elapsed_time} seconds")
     
