@@ -148,26 +148,34 @@ def write_solution_to_file(solution, output_file):
                 output_file.write(f"{value}")
 
 if __name__ == "__main__":
-    challenges = [
+    # challenges = [
     
-    " ".join(["TEN + HERONS + REST + NEAR + NORTH + SEA + SHORE=ROARTS",
-    ]),
-    " ".join(["SEND+(MORE+MONEY)-(+OR+DIE)=NUOYI"
-    ]),
-    " ".join([
-        "TEN + HERONS + REST + NEAR + NORTH + SEA + SHORE + AS + TAN + TERNS + SOAR + TO + ENTER + THERE + AS + ",
-        "HERONS + NEST + ON + STONES + AT + SHORE + THREE + STARS + ARE + SEEN + TERN + SNORES + ARE + NEAR = SEVVOTH",        
-    ]),
-    " ".join([
+    # " ".join(["TEN + HERONS + REST + NEAR + NORTH + SEA + SHORE=ROARTS",
+    # ]),
+    # " ".join(["SEND+(MORE+MONEY)-(+OR+DIE)=NUOYI"
+    # ]),
+    # " ".join([
+    #     "TEN + HERONS + REST + NEAR + NORTH + SEA + SHORE + AS + TAN + TERNS + SOAR + TO + ENTER + THERE + AS + ",
+    #     "HERONS + NEST + ON + STONES + AT + SHORE + THREE + STARS + ARE + SEEN + TERN + SNORES + ARE + NEAR = SEVVOTH",        
+    # ]),
+    # " ".join([
     
-        "SO + MANY + MORE + MEN + SEEM + TO + SAY + THAT + THEY + MAY + SOON + TRY + TO + STAY + AT + HOME + ",
-        "SO + AS + TO + SEE + OR + HEAR + THE + SAME + ONE + MAN + TRY + TO + MEET + THE + TEAM + ON + THE + ",
-        "MOON + AS + HE + HAS + AT + THE + OTHER + TEN = TESTS",
-    ]),
-]
+    #     "SO + MANY + MORE + MEN + SEEM + TO + SAY + THAT + THEY + MAY + SOON + TRY + TO + STAY + AT + HOME + ",
+    #     "SO + AS + TO + SEE + OR + HEAR + THE + SAME + ONE + MAN + TRY + TO + MEET + THE + TEAM + ON + THE + ",
+    #     "MOON + AS + HE + HAS + AT + THE + OTHER + TEN = TESTS",
+    # ]),
+# ]   
+    num_args=len(sys.argv)
+    if num_args >1:
+        name=sys.argv[1]
+    with open(name,'r') as file:
+        statement= file.read()
+    print(statement)
+
+
     start = time.time()
     # Code to be measured
-    csp = create_csp(challenges[0]) 
+    csp = create_csp(statement) 
     solution = csp.backtracking()
     # print(evaluate("SEND+(MORE+MONEY)-OR+DIE==NUOYI", solution))
     # solution = dict(sorted(solution.items()))
